@@ -11,6 +11,17 @@ cdef extern from "DracoPy.h" namespace "DracoFunctions":
     cdef enum encoding_status:
         successful_encoding, failed_during_encoding
     
+    cdef struct PointCloudObject:
+        vector[float] points
+
+        decoding_status decode_status
+
+    cdef struct EncodedPointCloudObject:
+        vector[unsigned char] buffer
+        encoding_status encode_status
+
+    EncodedPointCloudObject encode_pointcloud(vector[float] points, int points_type)
+
     cdef struct MeshObject:
         vector[float] points
         vector[unsigned int] faces

@@ -1,5 +1,7 @@
 #include<vector>
 #include<cstddef>
+#include "draco/point_cloud/point_cloud_builder.h"
+#include "draco/compression/point_cloud/point_cloud_encoder.h"
 #include "draco/mesh/triangle_soup_mesh_builder.h"
 #include "draco/compression/encode.h"
 #include "draco/compression/decode.h"
@@ -11,6 +13,59 @@ namespace DracoFunctions {
   enum decoding_status { successful, not_draco_encoded, no_position_attribute, failed_during_decoding };
   enum encoding_status { successful_encoding, failed_during_encoding };
   
+  struct PointCloudObject {
+    std::vector<float> points;
+    decoding_status decode_status;
+  };
+
+  struct EncodedPointCloudObject {
+    std::vector<unsigned char> buffer;
+    encoding_status encode_status;
+  };
+
+  EncodedPointCloudObject encode_pointcloud(const std::vector<float> &points,
+      int points_type) {
+
+    // 1. build point cloud
+    draco::PointCloudBuilder pcb;
+
+    pcb.Start(points.size());
+
+    const int gen_att_id =
+      pcb.AddAttribute(draco::GeometryAttribute::GENERIC, 1, draco::DataType::DT_FLOAT32);
+
+    pcb.SetAttributeValuesForAllPoints(gen_att_id, &points, 0);
+
+    std::unique_ptr<draco::PointCloud> ptr_pointcloud = pcb.Finalize(false);
+    draco::PointCloud *pointcloud = ptr_pointcloud.get();
+
+    // 2. encode point cloud
+    draco::Encoder encoder;
+    draco::EncoderBuffer buffer;
+
+    // activate sequential encoding
+    encoder.options().SetGlobalInt("encoding_method", draco::POINT_CLOUD_SEQUENTIAL_ENCODING);
+
+    const draco::Status status = encoder.EncodePointCloudToBuffer(*pointcloud, &buffer);
+
+    EncodedPointCloudObject encoded_pointcloud;
+    encoded_pointcloud.buffer = *((std::vector<unsigned char> *)buffer.buffer());
+
+    if (status.ok()) {
+
+      encoded_pointcloud.encode_status = successful_encoding;
+
+    } else {
+
+      std::cout << "Draco encoding error: " << status.error_msg_string() << std::endl;
+      encoded_pointcloud.encode_status = failed_during_encoding;
+
+    }
+
+    return encoded_pointcloud;
+
+  }
+
   struct MeshObject {
     std::vector<float> points;
     std::vector<float> normals;

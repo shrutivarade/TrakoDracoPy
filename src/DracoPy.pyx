@@ -6,6 +6,15 @@ import struct
 from math import floor
 from libc.string cimport memcmp
 
+class DracoPointCloud(object):
+    def __init__(self, mesh_struct):
+        self.mesh_struct = mesh_struct
+
+    @property
+    def points(self):
+        return self.mesh_struct['points']
+
+
 class DracoMesh(object):
     def __init__(self, mesh_struct):
         self.mesh_struct = mesh_struct
@@ -68,6 +77,22 @@ class FileTypeException(Exception):
 
 class EncodingFailedException(Exception):
     pass
+
+def encode_pointcloud_to_buffer(points, points_type=1):
+    """
+    Encode a list or numpy array of points to a draco buffer.
+    Currently, this uses sequential pointcloud encoding.
+    """
+    try:
+        encoded_pointcloud = DracoPy.encode_pointcloud(points, points_type)
+        if encoded_pointcloud.encode_status == DracoPy.encoding_status.successful_encoding:
+            return bytes(encoded_pointcloud.buffer)
+        elif encoded_pointcloud.encode_status == DracoPy.encoding_status.failed_during_encoding:
+            raise EncodingFailedException('Invalid point cloud')
+    except EncodingFailedException:
+        raise EncodingFailedException('Invalid point cloud')
+    except:
+        raise ValueError("Input invalid")
 
 def encode_mesh_to_buffer(points, faces, quantization_bits=14, compression_level=1, quantization_range=-1, quantization_origin=None, create_metadata=False):
     """
