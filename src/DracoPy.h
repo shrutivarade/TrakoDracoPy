@@ -44,6 +44,7 @@ namespace DracoFunctions {
     draco::EncoderBuffer buffer;
 
     // activate sequential encoding
+    encoder.SetEncodingMethod(draco::POINT_CLOUD_SEQUENTIAL_ENCODING);
     encoder.options().SetGlobalInt("encoding_method", draco::POINT_CLOUD_SEQUENTIAL_ENCODING);
 
     const draco::Status status = encoder.EncodePointCloudToBuffer(*pointcloud, &buffer);
@@ -66,6 +67,63 @@ namespace DracoFunctions {
 
   }
 
+
+  PointCloudObject decode_buffer_to_pointcloud(const char *buffer, std::size_t buffer_len) {
+    PointCloudObject pointcloudObject;
+
+    draco::DecoderBuffer decoderBuffer;
+    decoderBuffer.Init(buffer, buffer_len);
+    
+    draco::Decoder decoder;
+
+    auto statusor = decoder.DecodePointCloudFromBuffer(&decoderBuffer);
+
+    if (!statusor.ok()) {
+      std::string status_string = statusor.status().error_msg_string();
+      if (status_string.compare("Not a Draco file.") || status_string.compare("Failed to parse Draco header.")) {
+        pointcloudObject.decode_status = not_draco_encoded;
+      }
+      else {
+        pointcloudObject.decode_status = failed_during_decoding;
+      }
+      return pointcloudObject;
+    }
+
+    std::unique_ptr<draco::PointCloud> in_pointcloud = std::move(statusor).value();
+    draco::PointCloud *pointcloud = in_pointcloud.get();
+
+
+
+
+
+    pointcloudObject.points.reserve(pointcloud->num_points());
+
+    const int pos_att_id = pointcloud->GetNamedAttributeId(draco::GeometryAttribute::GENERIC);
+
+    std::cout << pos_att_id << std::endl;
+
+    const auto *const pos_att = pointcloud->attribute(pos_att_id);
+
+    std::cout << pos_att->num_components() << std::endl;
+
+
+
+    float pos_val[1];
+    for (draco::AttributeValueIndex v(0); v < pointcloud->num_points(); ++v) {
+
+      pos_att->GetValue(v, pos_val);
+      std::cout << *pos_val << std::endl;
+      pointcloudObject.points.push_back(pos_val[0]);
+
+    }
+
+    pointcloudObject.decode_status = successful;
+
+    return pointcloudObject;
+
+  };
+
+
   struct MeshObject {
     std::vector<float> points;
     std::vector<float> normals;
@@ -85,43 +143,6 @@ namespace DracoFunctions {
     encoding_status encode_status;
   };
 
-  PointCloudObject decode_buffer(const char *buffer, std::size_t buffer_len) {
-    PointCloudObject pointcloudObject;
-
-    draco::DecoderBuffer decoderBuffer;
-    decoderBuffer.Init(buffer, buffer_len);
-    
-    draco::Decoder decoder;
-    auto statusor = decoder.DecodePointCloudFromBuffer(&decoderBuffer);
-
-    if (!statusor.ok()) {
-      std::string status_string = statusor.status().error_msg_string();
-      if (status_string.compare("Not a Draco file.") || status_string.compare("Failed to parse Draco header.")) {
-        pointcloudObject.decode_status = not_draco_encoded;
-      }
-      else {
-        pointcloudObject.decode_status = failed_during_decoding;
-      }
-      return pointcloudObject;
-    }
-
-    std::unique_ptr<draco::PointCloud> in_pointcloud = std::move(statusor).value();
-    draco::PointCloud *pointcloud = in_pointcloud.get();
-
-    pointcloudObject.points.reserve(pointcloud->num_points());
-
-    float pos_val[3];
-    for (draco::PointIndex v(0); v < pointcloud->num_points(); ++v) {
-
-
-      pos_att->GetMappedValue(v, pos_val);
-      pointcloudObject.points.push_back(pos_val[0]);
-      meshObject.points.push_back(pos_val[1]);
-      meshObject.points.push_back(pos_val[2]);
-    }
-
-
-  };
 
   MeshObject decode_buffer(const char *buffer, std::size_t buffer_len) {
     MeshObject meshObject;

@@ -20,6 +20,8 @@ cdef extern from "DracoPy.h" namespace "DracoFunctions":
         vector[unsigned char] buffer
         encoding_status encode_status
 
+    PointCloudObject decode_buffer_to_pointcloud(const char *buffer, size_t buffer_len) except +
+
     EncodedPointCloudObject encode_pointcloud(vector[float] points, int points_type)
 
     cdef struct MeshObject:

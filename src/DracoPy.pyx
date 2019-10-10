@@ -7,12 +7,12 @@ from math import floor
 from libc.string cimport memcmp
 
 class DracoPointCloud(object):
-    def __init__(self, mesh_struct):
-        self.mesh_struct = mesh_struct
+    def __init__(self, pointcloud_struct):
+        self.pointcloud_struct = pointcloud_struct
 
     @property
     def points(self):
-        return self.mesh_struct['points']
+        return self.pointcloud_struct['points']
 
 
 class DracoMesh(object):
@@ -135,3 +135,12 @@ def decode_buffer_to_mesh(buffer):
         raise TypeError('Failed to decode input mesh. Data might be corrupted')
     elif mesh_struct.decode_status == DracoPy.decoding_status.no_position_attribute:
         raise ValueError('DracoPy only supports meshes with position attributes')
+
+def decode_buffer_to_point_cloud(buffer):
+    pointcloud_struct = DracoPy.decode_buffer_to_pointcloud(buffer, len(buffer))
+    if pointcloud_struct.decode_status == DracoPy.decoding_status.successful:
+        return DracoPointCloud(pointcloud_struct)
+    elif pointcloud_struct.decode_status == DracoPy.decoding_status.not_draco_encoded:
+        raise FileTypeException('Input is not draco encoded')
+    elif pointcloud_struct.decode_status == DracoPy.decoding_status.failed_during_decoding:
+        raise TypeError('Failed to decode input. Data might be corrupted')
