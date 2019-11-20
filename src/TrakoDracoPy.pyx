@@ -84,10 +84,10 @@ def encode_pointcloud_to_buffer(points, points_type=1):
     Currently, this uses sequential pointcloud encoding.
     """
     try:
-        encoded_pointcloud = DracoPy.encode_pointcloud(points, points_type)
-        if encoded_pointcloud.encode_status == DracoPy.encoding_status.successful_encoding:
+        encoded_pointcloud = TrakoDracoPy.encode_pointcloud(points, points_type)
+        if encoded_pointcloud.encode_status == TrakoDracoPy.encoding_status.successful_encoding:
             return bytes(encoded_pointcloud.buffer)
-        elif encoded_pointcloud.encode_status == DracoPy.encoding_status.failed_during_encoding:
+        elif encoded_pointcloud.encode_status == TrakoDracoPy.encoding_status.failed_during_encoding:
             raise EncodingFailedException('Invalid point cloud')
     except EncodingFailedException:
         raise EncodingFailedException('Invalid point cloud')
@@ -111,12 +111,12 @@ def encode_mesh_to_buffer(points, faces, quantization_bits=14, compression_level
             quant_origin = <float *>PyMem_Malloc(sizeof(float) * num_dims)
             for dim in range(num_dims):
                 quant_origin[dim] = quantization_origin[dim]
-        encoded_mesh = DracoPy.encode_mesh(points, faces, quantization_bits, compression_level, quantization_range, quant_origin, create_metadata)
+        encoded_mesh = TrakoDracoPy.encode_mesh(points, faces, quantization_bits, compression_level, quantization_range, quant_origin, create_metadata)
         if quant_origin != NULL:
             PyMem_Free(quant_origin)
-        if encoded_mesh.encode_status == DracoPy.encoding_status.successful_encoding:
+        if encoded_mesh.encode_status == TrakoDracoPy.encoding_status.successful_encoding:
             return bytes(encoded_mesh.buffer)
-        elif encoded_mesh.encode_status == DracoPy.encoding_status.failed_during_encoding:
+        elif encoded_mesh.encode_status == TrakoDracoPy.encoding_status.failed_during_encoding:
             raise EncodingFailedException('Invalid mesh')
     except EncodingFailedException:
         raise EncodingFailedException('Invalid mesh')
@@ -126,21 +126,21 @@ def encode_mesh_to_buffer(points, faces, quantization_bits=14, compression_level
         raise ValueError("Input invalid")
 
 def decode_buffer_to_mesh(buffer):
-    mesh_struct = DracoPy.decode_buffer(buffer, len(buffer))
-    if mesh_struct.decode_status == DracoPy.decoding_status.successful:
+    mesh_struct = TrakoDracoPy.decode_buffer(buffer, len(buffer))
+    if mesh_struct.decode_status == TrakoDracoPy.decoding_status.successful:
         return DracoMesh(mesh_struct)
-    elif mesh_struct.decode_status == DracoPy.decoding_status.not_draco_encoded:
+    elif mesh_struct.decode_status == TrakoDracoPy.decoding_status.not_draco_encoded:
         raise FileTypeException('Input mesh is not draco encoded')
-    elif mesh_struct.decode_status == DracoPy.decoding_status.failed_during_decoding:
+    elif mesh_struct.decode_status == TrakoDracoPy.decoding_status.failed_during_decoding:
         raise TypeError('Failed to decode input mesh. Data might be corrupted')
-    elif mesh_struct.decode_status == DracoPy.decoding_status.no_position_attribute:
+    elif mesh_struct.decode_status == TrakoDracoPy.decoding_status.no_position_attribute:
         raise ValueError('DracoPy only supports meshes with position attributes')
 
 def decode_buffer_to_point_cloud(buffer):
-    pointcloud_struct = DracoPy.decode_buffer_to_pointcloud(buffer, len(buffer))
-    if pointcloud_struct.decode_status == DracoPy.decoding_status.successful:
+    pointcloud_struct = TrakoDracoPy.decode_buffer_to_pointcloud(buffer, len(buffer))
+    if pointcloud_struct.decode_status == TrakoDracoPy.decoding_status.successful:
         return DracoPointCloud(pointcloud_struct)
-    elif pointcloud_struct.decode_status == DracoPy.decoding_status.not_draco_encoded:
+    elif pointcloud_struct.decode_status == TrakoDracoPy.decoding_status.not_draco_encoded:
         raise FileTypeException('Input is not draco encoded')
-    elif pointcloud_struct.decode_status == DracoPy.decoding_status.failed_during_decoding:
+    elif pointcloud_struct.decode_status == TrakoDracoPy.decoding_status.failed_during_decoding:
         raise TypeError('Failed to decode input. Data might be corrupted')
