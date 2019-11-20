@@ -12,3 +12,5 @@ DracoPy requires Python >= 3.5, pip >= 10, and a C++ compiler that is fully comp
 It supports Linux and OS X.
 
 An example of usage is given in example.py.
+
+** This version is modified from the original https://github.com/seung-lab/DracoPy **

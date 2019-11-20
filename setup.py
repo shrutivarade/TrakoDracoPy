@@ -34,19 +34,19 @@ else:
 extra_link_args = ['-L{0}'.format(lib_dir)] + library_link_args
 
 setup(
-    name='DracoPy',
-    version='0.0.13',
-    description = 'Python wrapper for Google\'s Draco Mesh Compression Library',
-    author = 'Manuel Castro',
-    author_email = 'macastro@princeton.edu',
-    url = 'https://github.com/seung-lab/DracoPy',
+    name='TrakoDracoPy',
+    version='0.0.13t',
+    description = 'Python wrapper for Google\'s Draco Mesh Compression Library with Trako support',
+    author = 'Manuel Castro, Daniel Haehn',
+    author_email = 'macastro@princeton.edu, haehn@mpsych.org',
+    url = 'https://github.com/haehn/TrakoDracoPy',
     cmake_source_dir='./draco',
     cmake_args=cmake_args,
     setup_requires=setup_requires,
     install_requires=['pytest'],
     ext_modules=[
         setuptools.Extension(
-            'DracoPy',
+            'TrakoDracoPy',
             sources=[ os.path.join(src_dir, 'DracoPy.cpp') ],
             depends=[ os.path.join(src_dir, 'DracoPy.h') ],
             language='c++',
