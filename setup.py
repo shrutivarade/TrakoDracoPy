@@ -35,7 +35,7 @@ extra_link_args = ['-L{0}'.format(lib_dir)] + library_link_args
 
 setup(
     name='TrakoDracoPy',
-    version='0.0.13b.dev9',
+    version='0.0.13b0.dev9',
     description = 'Python wrapper for Google\'s Draco Mesh Compression Library with Trako support',
     author = 'Manuel Castro, Daniel Haehn',
     author_email = 'macastro@princeton.edu, haehn@mpsych.org',
