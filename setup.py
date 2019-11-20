@@ -35,7 +35,7 @@ extra_link_args = ['-L{0}'.format(lib_dir)] + library_link_args
 
 setup(
     name='TrakoDracoPy',
-    version='0.0.13t',
+    version='0.0.13b.dev9',
     description = 'Python wrapper for Google\'s Draco Mesh Compression Library with Trako support',
     author = 'Manuel Castro, Daniel Haehn',
     author_email = 'macastro@princeton.edu, haehn@mpsych.org',
@@ -47,8 +47,8 @@ setup(
     ext_modules=[
         setuptools.Extension(
             'TrakoDracoPy',
-            sources=[ os.path.join(src_dir, 'DracoPy.cpp') ],
-            depends=[ os.path.join(src_dir, 'DracoPy.h') ],
+            sources=[ os.path.join(src_dir, 'TrakoDracoPy.cpp') ],
+            depends=[ os.path.join(src_dir, 'TrakoDracoPy.h') ],
             language='c++',
             include_dirs = [ os.path.join(CMAKE_INSTALL_DIR(), 'include/')],
             extra_compile_args=[

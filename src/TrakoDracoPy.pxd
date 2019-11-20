@@ -2,7 +2,7 @@ from libcpp.vector cimport vector
 from libc.stdint cimport uint32_t
 from libcpp cimport bool
 
-cdef extern from "DracoPy.h" namespace "DracoFunctions":
+cdef extern from "TrakoDracoPy.h" namespace "DracoFunctions":
 
     cdef enum decoding_status:
         successful, not_draco_encoded, no_position_attribute, 

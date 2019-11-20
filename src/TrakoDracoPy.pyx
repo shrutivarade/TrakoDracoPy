@@ -1,7 +1,7 @@
 # distutils: language = c++
 
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
-cimport DracoPy
+cimport TrakoDracoPy
 import struct
 from math import floor
 from libc.string cimport memcmp
